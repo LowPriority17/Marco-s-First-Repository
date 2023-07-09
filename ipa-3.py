@@ -48,14 +48,15 @@ def relationship_status(from_member, to_member, social_graph):
     # Replace `pass` with your code.
     # Stay within the function. Only use the parameters as input. The function should return your answer.
     
-    if from_member in social_graph.get(to_member, []):
-        if to_member in social_graph.get(from_member, []):
+    following = to_member in social_graph[from_member]["following"]
+    followed_by = from_member in social_graph[to_member]["following"]
+    if following:
+        if followed_by:
             return "friends"
-        else:
-            return "followed by"
-    elif to_member in social_graph.get(from_member, []):
         return "follower"
-    else:
+    if not following:
+        if followed_by:
+            return "followed by"
         return "no relationship"
 
 
@@ -86,20 +87,25 @@ def tic_tac_toe(board):
     # Replace `pass` with your code.
     # Stay within the function. Only use the parameters as input. The function should return your answer.
     
-    size = len(board)
     for row in board:
-        if len(set(row)) == 1 and row[0] != '':
+        if len(set(row)) == 1 and row[0] != "":
             return row[0]
-    for col in range(size):
-        column = [board[i][col] for i in range(size)]
-        if len(set(column)) == 1 and column[0] != '':
+
+    for col in range(len(board)):
+        column = [board[row][col] for row in range(len(board))]
+        if len(set(column)) == 1 and column[0] != "":
             return column[0]
-    diagonal1 = [board[i][i] for i in range(size)]
-    if len(set(diagonal1)) == 1 and diagonal1[0] != '':
-        return diagonal1[0]
-    diagonal2 = [board[i][size - i - 1] for i in range(size)]
-    if len(set(diagonal2)) == 1 and diagonal2[0] != '':
-        return diagonal2[0]
+
+    negative_diagonal = []
+    positive_diagonal = []
+    for i in range(len(board)):
+        negative_diagonal.append(board[i][i])
+        positive_diagonal.append(board[i][len(board) - 1 - i])
+    if len(set(negative_diagonal)) == 1 and negative_diagonal[0] != "":
+        return negative_diagonal[0]
+    if len(set(positive_diagonal)) == 1 and positive_diagonal[0] != "":
+        return positive_diagonal[0]
+
     return "NO WINNER"
 
 
@@ -135,14 +141,23 @@ def eta(first_stop, second_stop, route_map):
     # Replace `pass` with your code.
     # Stay within the function. Only use the parameters as input. The function should return your answer.
     
-    current_stop = first_stop
-    total_time = 0
+    keys = list(route_map.keys())
+    if (first_stop, second_stop) in keys:
+        return route_map[(first_stop, second_stop)]["travel_time_mins"]
 
-    while current_stop != second_stop:
-        next_stop = route_map[current_stop]
-        time = route_map[current_stop][next_stop]
-        total_time += time
-        current_stop = next_stop
+    start_index = 0
+    for key in keys:
+        if key[0] == first_stop:
+            start_index = keys.index(key)
 
-    return total_time
+    # assuming stops aren't sorted in route_map
+    total_travel_time = 0
+    start_stop = first_stop
+    while start_stop != second_stop:
+        if keys[start_index][0] == start_stop:
+            total_travel_time += route_map[keys[start_index]]["travel_time_mins"]
+            start_stop = keys[start_index][1]
+        start_index = (start_index + 1) % len(keys)
+
+    return total_travel_time
 

@@ -74,20 +74,13 @@ def caesar_cipher(message, shift):
     # Replace `pass` with your code.
     # Stay within the function. Only use the parameters as input. The function should return your answer.
     
-    alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    shifted_message = ''
-    
-    for char in message:
-        if char.isalpha():
-            is_uppercase = char.isupper()
-            char = char.upper()
-            shifted_index = (alphabet.index(char) + shift) % 26
-            shifted_char = alphabet[shifted_index]
-            shifted_message += shifted_char if is_uppercase else shifted_char.lower()
-        else:
-            shifted_message += char
-    
-    return shifted_message
+    shifted_letters = []
+    for letter in message:
+        if letter == " ":
+            shifted_letters.append(" ")
+            continue
+        shifted_letters.append(chr(((ord(letter) - 65 + shift) % 26) + 65))
+    return "".join(shifted_letters)
 
 
 def shift_by_letter(letter, letter_shift):
@@ -121,12 +114,8 @@ def shift_by_letter(letter, letter_shift):
     
     if letter == " ":
         return " "
-    else:
-        letter_shift = ord(letter_shift) - ord("A")
-        letter_unicode = ord(letter) - ord("A")
-        new_letter_unicode = (letter_unicode + letter_shift) % 26
-        new_letter = chr(new_letter_unicode + ord("A"))
-        return new_letter
+    order_of_final_letter = ((ord(letter) - 65 + ord(letter_shift) - 65) % 26) + 65
+    return chr(order_of_final_letter)
     
 
 def vigenere_cipher(message, key):
@@ -161,22 +150,15 @@ def vigenere_cipher(message, key):
     # Replace `pass` with your code.
     # Stay within the function. Only use the parameters as input. The function should return your answer.
     
-    message = message.replace(" ", "")
-    key = key * ((len(message) // len(key)) + 1)
-    key = key[:len(message)]
-    alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    shifted_message = ''
-
+    message_letters = list(message)
+    key_letters = list(key)
+    key_length = len(key)
     for i in range(len(message)):
-        char = message[i]
-        shift = alphabet.index(key[i])
-        is_uppercase = char.isupper()
-        char = char.upper()
-        shifted_index = (alphabet.index(char) + shift) % 26
-        shifted_char = alphabet[shifted_index]
-        shifted_message += shifted_char if is_uppercase else shifted_char.lower()
-
-    return shifted_message
+        if message_letters[i] == " ":
+            continue
+        order_of_letter = ((ord(message[i]) - 65 + ord(key[i % key_length]) - 65) % 26) + 65
+        message_letters[i] = chr(order_of_letter)
+    return "".join(message_letters)
 
 def scytale_cipher(message, shift):
     '''Scytale Cipher.
@@ -231,17 +213,15 @@ def scytale_cipher(message, shift):
     # Replace `pass` with your code.
     # Stay within the function. Only use the parameters as input. The function should return your answer.
     
-    if len(message) % shift != 0:
-        message += "_" * (shift - len(message) % shift)
-
-    encoded_message = ""
-    num_rows = len(message) // shift
-
-    for i in range(shift):
-        for j in range(num_rows):
-            encoded_message += message[j * shift + i]
-
-    return encoded_message
+    message_letters = list(message)
+    message_length = len(message)
+    encoded_message_letters = []
+    while message_length % shift != 0:
+        message_letters.append("_")
+        message_length += 1
+    for i in range(message_length):
+        encoded_message_letters.append(message_letters[(i // shift) + (message_length // shift) * (i % shift)])
+    return "".join(encoded_message_letters)
 
 
 def scytale_decipher(message, shift):
@@ -272,23 +252,13 @@ def scytale_decipher(message, shift):
     # Replace `pass` with your code.
     # Stay within the function. Only use the parameters as input. The function should return your answer.
     
-    rows = len(message) // shift
-    grid = [[''] * shift for _ in range(rows)]
-    index = 0
-    for j in range(shift):
-        for i in range(rows):
-            grid[i][j] = message[index]
-            index += 1
-    decrypted_message = ''
-    for i in range(rows):
-        for j in range(shift):
-            decrypted_message += grid[i][j]
-    decrypted_message = decrypted_message.rstrip('_')
-    return decrypted_message
-
-
-# In[19]:
-
-
-
+    message_letters = list(message)
+    message_length = len(message)
+    decoded_message_letters = []
+    while message_length % shift != 0:
+        message_letters.append("_")
+        message_length += 1
+    for i in range(message_length):
+        decoded_message_letters.append(message_letters[(i % (message_length // shift)) * shift + (i // (message_length // shift))])
+    return "".join(decoded_message_letters)
 
